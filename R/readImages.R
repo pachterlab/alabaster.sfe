@@ -25,7 +25,7 @@ readSpatRaster <- function(path, metadata = NULL, ...) {
 #' \code{BioFormatsImabe} object will no longer work.
 #'
 #' @inheritParams alabaster.base::readObject
-#' @param ... Ignored
+#' @param ... Ignored, but used for other methods.
 #' @family readObject-SFE-image
 #' @return A \code{\link{BioFormatsImage}} object for SFE.
 #' @export
@@ -34,7 +34,11 @@ readSpatRaster <- function(path, metadata = NULL, ...) {
 #'
 readBioFormatsImage <- function(path, metadata = NULL, ...) {
     metadata <- read_json(file.path(path, "OBJECT"), simplifyVector = TRUE)
-    fn <- list.files(path, pattern = "^image\\.")
+    if (dir.exists(file.path(path, "image"))) {
+        fn <- list.files(file.path(path, "image"))[1]
+    } else {
+        fn <- list.files(path, pattern = "^image\\.")
+    }
     BioFormatsImage(file.path(path, fn), ext = metadata$extent,
                     isFull = metadata$isFull, origin = metadata$origin,
                     transformation = metadata$transformation)

@@ -10,10 +10,10 @@ Description:
     Builds upon the existing ArtifactDB project, expending alabaster.spatial for
     language agnostic on disk serialization of SpatialFeatureExperiment.
 Depends: 
-    SpatialFeatureExperiment,
+    SpatialFeatureExperiment (>= 1.7.3),
     alabaster.base
 Imports:
-    alabaster.spatial,
+    alabaster.spatial (>= 1.5.2),
     arrow,
     EBImage,
     jsonlite,
@@ -21,7 +21,9 @@ Imports:
     sfarrow,
     spdep,
     terra,
-    tools
+    tools,
+    xml2
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+RoxygenNote: 7.3.2

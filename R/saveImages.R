@@ -11,7 +11,6 @@
 #' @inheritParams alabaster.base::saveObject
 #' @param ... Extra parameters passed to \code{\link{writeRaster}}.
 #' @importFrom terra rast writeRaster
-#' @importFrom tools file_ext
 #' @family saveObject-SFE-image
 #' @export
 #' @examples
@@ -19,7 +18,7 @@
 #'
 setMethod("saveObject", "SpatRaster", function(x, path, ...) {
     dir.create(path)
-    saveObjectFile(path, "spatraster", extra = list(version = "1.0"))
+    saveObjectFile(path, "geotiff", extra = list(version = "1.0"))
     f <- imgSource(x)
     if (is.na(f)) {
         is_geotiff <- FALSE
@@ -28,7 +27,7 @@ setMethod("saveObject", "SpatRaster", function(x, path, ...) {
         is_geotiff <- !is(w, "warning")
     }
     if (is_geotiff) {
-        ex <- file_ext(f)
+        ex <- .file_ext(f)
         file.copy(f, file.path(path, "image", ex))
         # Still debating whether to keep original format or always use tiff
         # Since what if a special driver is required?
@@ -53,7 +52,7 @@ setMethod("saveObject", "SpatRaster", function(x, path, ...) {
 #' @export
 #' @family saveObject-SFE-image
 #' @examples
-#'
+#' #
 setMethod("saveObject", "BioFormatsImage", function(x, path, ...) {
     dir.create(path)
     saveObjectFile(path, "bioformats_image",
@@ -63,8 +62,18 @@ setMethod("saveObject", "BioFormatsImage", function(x, path, ...) {
                                 origin = origin(x),
                                 transformation = transformation(x)))
     f <- imgSource(x)
-    ex <- file_ext(f)
-    file.copy(f, file.path(path, "image", ex))
+    # Deal with multi-file OME-TIFF, where imgSource points to the first file
+    # Can't change file name in order not to mess with the XML metadata;
+    # I'll put those in a directory.
+    fns <- .get_ome_fns(f)
+    if (length(fns) > 1L) {
+        new_dir <- file.path(path, "image")
+        dir.create(new_dir)
+        file.copy(fns, new_dir)
+    } else {
+        ex <- .file_ext(f)
+        file.copy(f, file.path(path, "image", ex))
+    }
 })
 
 #' Save \code{ExtImage} to disk for \code{alabaster}
