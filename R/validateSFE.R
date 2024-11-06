@@ -14,12 +14,13 @@
         validateObject(file.path(path, i-1L))
     }
 }
+
 .validateGraphs <- function(path) {
     if (!dir.exists(path)) return(NULL)
     .validate_list_dir(path)
     margins <- c("row", "col", "annot")
     # Samples
-    nms <- read_json(file.path(path, "names.json"), simplifyVector = TRUE)
+    samples <- read_json(file.path(path, "names.json"), simplifyVector = TRUE)
     for (i in seq_along(samples)) {
         d <- file.path(path, i-1L)
         dds <- file.path(d, margins)
@@ -39,19 +40,6 @@
     
 }
 
-.validateLocalResults <- function(path) {
-    if (!dir.exists(path)) return(NULL)
-    .validate_list_dir(path)
-    nms <- read_json(file.path(path, "names.json"), simplifyVector = TRUE)
-    for (i in seq_along(nms)) {
-        fn <- file.path(path, i-1L)
-        .validate_list_dir(fn)
-        nms2 <- read_json(file.path(path, "names.json"), simplifyVector = TRUE)
-        for (j in seq_along(nms2)) {
-            validateObject(file.path(fn, j-1L))
-        }
-    }
-}
 
 # Validate SFE representation
 validateSFE <- function(path, metadata = NULL) {
@@ -68,6 +56,4 @@ validateSFE <- function(path, metadata = NULL) {
     
     # Validate spatial graphs if present
     .validateGraphs(file.path(path, "spatial_graphs"))
-    # Validate localResults if present
-    .validateLocalResults(file.path(path, "local_results"))
 }

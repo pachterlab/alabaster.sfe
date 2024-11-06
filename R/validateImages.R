@@ -1,6 +1,7 @@
 # Validate the images
 validateGeoTIFF <- function(path, metadata = NULL) {
-    stopifnot(file.exists(file.path(path, "image.tiff")))
+    f <- file.path(path, "image.tiff")
+    stopifnot(file.exists(f))
     w <- tryCatch(rast(f), warning = function(w) w)
     if (is(w, "warning")) stop("image.tiff must be GeoTIFF")
 }

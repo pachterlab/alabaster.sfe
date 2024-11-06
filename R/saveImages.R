@@ -18,7 +18,8 @@
 #'
 setMethod("saveObject", "SpatRaster", function(x, path, ...) {
     dir.create(path)
-    saveObjectFile(path, "geotiff", extra = list(version = "1.0"))
+    saveObjectFile(path, "geotiff", 
+                   list(geotiff = list(version = "1.0")))
     f <- imgSource(x)
     if (is.na(f)) {
         is_geotiff <- FALSE
@@ -56,11 +57,11 @@ setMethod("saveObject", "SpatRaster", function(x, path, ...) {
 setMethod("saveObject", "BioFormatsImage", function(x, path, ...) {
     dir.create(path)
     saveObjectFile(path, "bioformats_image",
-                   extra = list(version = "1.0",
-                                is_full = isFull(x),
-                                extent = ext(x),
-                                origin = origin(x),
-                                transformation = transformation(x)))
+                   list(bioformats_image = list(version = "1.0",
+                                                is_full = isFull(x),
+                                                extent = ext(x),
+                                                origin = origin(x),
+                                                transformation = transformation(x))))
     f <- imgSource(x)
     # Deal with multi-file OME-TIFF, where imgSource points to the first file
     # Can't change file name in order not to mess with the XML metadata;
@@ -89,7 +90,7 @@ setMethod("saveObject", "BioFormatsImage", function(x, path, ...) {
 setMethod("saveObject", "ExtImage", function(x, path, ...) {
     dir.create(path)
     saveObjectFile(path, "ext_image",
-                   extra = list(version = "1.0",
-                                extent = ext(x)))
+                   list(ext_image = list(version = "1.0",
+                                         extent = ext(x))))
     writeImage(x, file.path(path, "image.tiff"))
 })

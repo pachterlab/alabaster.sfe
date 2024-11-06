@@ -23,3 +23,9 @@
     fns <- file.path(dirname(fn1), fns)
     fns
 }
+
+.get_object_dims <- function(path) {
+    meta <- readObjectFile(path)
+    type <- meta$type
+    meta[[type]]$dimensions
+}

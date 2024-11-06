@@ -1,6 +1,8 @@
 .readGeometries <- function(path, type = c("col", "row", "annot")) {
-    fp <- file.path(path, paste0(type, "geometries"))
+    tg <- paste0(type, "geometries")
+    fp <- file.path(path, tg)
     if (!dir.exists(fp)) return(NULL)
+    message(">>> Reading ", tg)
     sfnames <- read_json(file.path(fp, "names.json"), simplifyVector = TRUE)
     gs <- lapply(seq_along(sfnames), function(i) {
         fp2 <- file.path(fp, i-1L)
@@ -13,6 +15,7 @@
 .readGraphs <- function(path) {
     d <- file.path(path, "spatial_graphs")
     if (!dir.exists(d)) return(NULL)
+    message(">>> Reading spatial graphs")
     ms <- c("row", "col", "annot")
     # Top level should be samples, and then margin, then individual graphs
     samples <- read_json(file.path(d, "names.json"), simplifyVector = TRUE)
@@ -26,7 +29,14 @@
             if (dir.exists(ddd)) {
                 graph_names <- read_json(file.path(ddd, "names.json"), simplifyVector = TRUE)
                 gs <- lapply(seq_along(graph_names), function(j) {
-                    altReadObject(file.path(ddd, j-1L))
+                    dddd <- file.path(ddd, j-1L)
+                    method <- altReadObject(file.path(dddd, "method"))
+                    # There's a slow R loop in this, need to optimize or do away with listw
+                    m <- mat2listw(altReadObject(dddd) |> as("CsparseMatrix"),
+                                   style = method$args$style, 
+                                   zero.policy = method$args$zero.policy)
+                    attr(m, "method") <- method
+                    m
                 })
                 names(gs) <- graph_names
                 mlist[[m]] <- gs
@@ -38,22 +48,13 @@
     return(out)
 }
 
-.readLocalResults <- function(path) {
+.readLocalResults <- function(sfe, path) {
     d <- file.path(path, "local_results")
-    if (!dir.exists(d)) return(NULL)
-    lr_names <- read_json(file.path(d, "names.json"), simplifyVector = TRUE)
-    out <- lapply(seq_along(lr_names), function(i) {
-        # Type of analysis, e.g. localmoran
-        dd <- file.path(d, i-1L)
-        features <- read_json(file.path(dd, "names.json"), simplifyVector = TRUE)
-        feature_res <- lapply(seq_along(features), function(j) {
-            # Results for each gene/feature
-            altReadObject(file.path(dd, j-1L))
-        })
-        names(feature_res) <- features
-    })
-    names(out) <- lr_names
-    return(out)
+    if (!dir.exists(d)) return(sfe)
+    message(">>> Reading localResults")
+    lrs <- altReadObject(d)
+    int_colData(sfe)$localResults <- lrs
+    sfe
 }
 
 .readReducedDimFeatureData <- function(sfe, path) {
@@ -62,12 +63,15 @@
     rd_names <- read_json(file.path(d, "names.json"), simplifyVector = TRUE)
     rds <- reducedDims(sfe)
     rds <- lapply(seq_along(rd_names), function(i) {
-        dd <- file.path(d, i-1L, "feature_data")
+        rd <- as.matrix(rds[[i]])
+        dd <- file.path(d, i-1L, "attrs")
         if (dir.exists(dd)) {
-            fd <- altReadObject(dd)
-            attr(rds[[i]], "featureData") <- fd
+            a <- altReadObject(dd)
+            attributes(rd) <- c(attributes(rd), a)
         }
+        rd
     })
+    names(rds) <- rd_names
     reducedDims(sfe) <- rds
     sfe
 }
@@ -78,12 +82,14 @@
 #'
 #' @export
 #' @importFrom spdep mat2listw
+#' @importFrom SingleCellExperiment int_metadata<- int_metadata
 #' @examples
 #' # example code
 #'
 readSpatialFeatureExperiment <- function(path, metadata = NULL, ...) {
     if (is.null(metadata))
         metadata <- readObjectFile(path)
+    message(">>> Reading SpatialExperiment")
     metadata$type <- "spatial_experiment"
     spe <- altReadObject(path, metadata, ...)
     
@@ -93,8 +99,10 @@ readSpatialFeatureExperiment <- function(path, metadata = NULL, ...) {
                                       annotGeometries = .readGeometries(path, "annot"),
                                       spatialGraphs = .readGraphs(path))
     # localResults
-    localResults(sfe) <- .readLocalResults(path)
+    sfe <- .readLocalResults(sfe, path)
     # reducedDimFeatureData
     sfe <- .readReducedDimFeatureData(sfe, path)
+    int_metadata(sfe)$unit <- metadata$spatial_feature_experiment$unit
+    int_metadata(sfe)$SFE_version <- package_version(metadata$spatial_feature_experiment$version)
     sfe
 }

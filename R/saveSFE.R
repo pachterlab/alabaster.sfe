@@ -7,9 +7,11 @@
     # There's a names.json file with a character vector of the names of the reducedDims
     if (!length(gs)) return(NULL)
     type <- match.arg(type)
-    dir_use <- file.path(path, paste0(type, "geometries"))
+    tg <- paste0(type, "geometries")
+    dir_use <- file.path(path, tg)
+    message(">>> Saving ", tg)
     dir.create(dir_use)
-    write_json(names(type), path = file.path(dir_use, "names.json"))
+    write_json(names(gs), path = file.path(dir_use, "names.json"))
     # I think when I get sdf to CRAN I should write a saveObject method for it
     for (i in seq_along(gs)) {
         d <- file.path(dir_use, i-1L)
@@ -21,26 +23,17 @@
     # One directory for each type, and inside that one for each feature
     # Need to deal with illegal names at some point
     if (!length(lrs)) return(NULL)
+    message(">>> Saving localResults")
     dir_use <- file.path(path, "local_results")
-    write_json(names(lrs), path = file.path(dir_use, "names.json"))
-    for (i in seq_along(lrs)) {
-        # Types of local results, e.g. localmoran, LOSH
-        d <- file.path(dir_use, i-1L)
-        dir.create(d)
-        write_json(names(lrs[[i]]), path = file.path(d, "names.json"))
-        for (j in seq_along(lrs[[i]])) {
-            # Features, e.g. genes and pairs of genes
-            dd <- file.path(d, j-1L)
-            altSaveObject(lrs[[i]][[j]], path = dd)
-        }
-    }
+    altSaveObject(lrs, dir_use)
 }
 
 .saveGraphs <- function(sfe, path) {
     # Also need to separate by sample_id
     # Because of sample_id, I'll save all graphs in this function, which is
     # different from .saveGeometries
-    if (!length(spatialGraphs(sfe))) return(NULL)
+    if (is.null(unlist(spatialGraphs(sfe)))) return(NULL)
+    message(">>> Saving spatial graphs")
     samples <- sampleIDs(sfe)
     ms <- c("row", "col", "annot")
     # Top level should be samples, and then margin, then individual graphs
@@ -62,6 +55,8 @@
                     mat <- listw2sparse(gs[[j]])
                     # Calls the sparse matrix method from alabaster.base
                     altSaveObject(mat, path = dddd)
+                    # Save the methods metadata
+                    altSaveObject(attr(gs[[j]], "method"), file.path(dddd, "method"))
                 }
             }
         }
@@ -88,23 +83,27 @@
 #' for \code{DataFrame}.
 #'
 #' @import SpatialFeatureExperiment alabaster.base methods
+#' @importFrom SingleCellExperiment reducedDimNames int_colData int_colData<-
 #' @importMethodsFrom alabaster.sce saveObject
+#' @importFrom S4Vectors metadata metadata<-
+#' @importFrom SummarizedExperiment colData colData<-
 #' @inheritParams alabaster.base::saveObject
 #' @export
 setMethod("saveObject", "SpatialFeatureExperiment",
           function(x, path, ...) {
               # Must use the more-images branch of alabaster.spatial
               # https://github.com/ArtifactDB/alabaster.spatial/pull/2/files
+              message(">>> Saving SpatialExperiment")
               base <- as(x, "SpatialExperiment")
               altSaveObject(base, path, ...)
-
+              
               # Deal with geometries, will deal with sdf later
               .saveGeometries(colGeometries(x), path, "col")
               .saveGeometries(rowGeometries(x), path, "row")
               .saveGeometries(annotGeometries(x), path, "annot")
 
               # Deal with LocalResults
-              .saveLocalResults(localResults(x), path)
+              .saveLocalResults(int_colData(x)$localResults, path)
 
               # Deal with spatialGraphs
               # I think I'll save the sparse adjacency matrices
@@ -114,16 +113,21 @@ setMethod("saveObject", "SpatialFeatureExperiment",
               # featureData; colFeatureData taken care of as mcol, geometryFeatureData taken care of in sf's saveObject method
               # Only need to deal with reducedDimFeatureData
               for (r in seq_along(reducedDimNames(x))) {
-                  fd <- attr(reducedDim(x, r), "featureData")
-                  if (!is.null(fd)) altSaveObject(fd, file.path(path, "reduced_dimensions", r-1L,
-                                                                "feature_data"))
+                  # Save all attrs that are not dims and dimnames
+                  # including variance explained, rotation, featureData, and params
+                  fp <- file.path(path, "reduced_dimensions", r-1L)
+                  l <- attributes(reducedDim(x, r))
+                  # Here assuming that reducedDims are dense base R matrices
+                  l <- l[!names(l) %in% c("dim", "dimnames")]
+                  altSaveObject(l, file.path(fp, "attrs"))
               }
               
               # Images should've been taken care of by SPE method and my new
               # saveObject methods for new imageclasses from SFE
 
               meta <- readObjectFile(path)
-              meta$spatial_feature_experiment <- list(version="1.0")
+              meta$spatial_feature_experiment <- list(version=as.character(SFEVersion(x)),
+                                                      unit = SpatialFeatureExperiment::unit(x))
               saveObjectFile(path, "spatial_feature_experiment", meta)
 
               invisible(NULL)
