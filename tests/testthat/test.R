@@ -95,7 +95,12 @@ test_that("Save and read single file BioFormatsImage", {
     expect_equal(transformation(bfi), transformation(bfi2))
     origin <- SpatialFeatureExperiment::origin
     expect_equal(origin(bfi), origin(bfi2), ignore_attr = "names")
-    expect_equal(imgSource(bfi2), normalizePath(file.path(fsave, "image.ome.tif")))
+    if (Sys.info()['sysname'] == "Windows") {
+        spl1 <- strsplit(imgSource(bfi2), "[(\\)/]")[[1]]
+        spl2 <- strsplit(normalizePath(file.path(fsave, "image.ome.tif")), "[(\\)/]")[[1]]
+        expect_equal(tail(spl1, 3), tail(spl2,3))
+    } else
+        expect_equal(imgSource(bfi2), normalizePath(file.path(fsave, "image.ome.tif")))
     unlink(fsave, recursive = TRUE)
 })
 
