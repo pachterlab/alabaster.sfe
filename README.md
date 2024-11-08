@@ -17,14 +17,4 @@ You can install the development version of alabaster.sfe from [GitHub](https://g
 devtools::install_github("pachterlab/alabaster.sfe")
 ```
 
-This package will be submitted to Bioconductor version 3.19 or 3.20.
-
-## Example
-
-This is a basic example which shows you how to solve a common problem:
-
-``` r
-library(alabaster.sfe)
-## basic example code
-```
-
+This package has been submitted to Bioconductor and is under review
