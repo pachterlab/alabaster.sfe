@@ -46,3 +46,7 @@ URL: https://pachterlab.github.io/alabaster.sfe/
 biocViews:
     DataRepresentation,
     Spatial
+Remotes:
+    Voyager=github::pachterlab/voyager@devel,
+    github::pachterlab/SpatialFeatureExperiment@devel
+    
