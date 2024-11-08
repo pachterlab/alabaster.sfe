@@ -14,10 +14,20 @@ If \code{NULL}, this is automatically read by \code{\link[alabaster.base]{readOb
 
 \item{...}{Further arguments to pass to individual methods.}
 }
+\value{
+A \code{SpatialFeatureExperiment} object
+}
 \description{
 Read SFE object from alabaster on disk representation
 }
 \examples{
-# example code
+library(SFEData)
+fp <- tempfile()
+fn <- file.path(fp, "vizgen")
+d <- VizgenOutput(dataset = "cellpose", file_path = fn)
+suppressWarnings(sfe <- readVizgen(d))
+fsave <- file.path(fp, "sfe_save")
+saveObject(sfe, fsave)
+sfe2 <- readObject(fsave)
 
 }

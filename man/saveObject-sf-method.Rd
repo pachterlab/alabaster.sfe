@@ -11,10 +11,17 @@
 
 \item{path}{String containing the path to a directory in which to save \code{x}.}
 }
+\value{
+x is saved into \code{path} and \code{NULL} is invisibly returned.
+}
 \description{
 \code{sf} data frames are saved as GeoParquet.
 }
 \examples{
-# example code
+library(sf)
+fp <- tempfile()
+df <- as.data.frame(matrix(rnorm(10), ncol = 2))
+df <- st_as_sf(df, coords = names(df), crs = NA)
+saveObject(df, path = fp)
 
 }

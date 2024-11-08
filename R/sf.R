@@ -3,10 +3,15 @@
 #' \code{sf} data frames are saved as GeoParquet.
 #' 
 #' @inheritParams alabaster.base::saveObject
+#' @return x is saved into \code{path} and \code{NULL} is invisibly returned.
 #' @importFrom sfarrow st_write_parquet
 #' @export
 #' @examples
-#' # example code
+#' library(sf)
+#' fp <- tempfile()
+#' df <- as.data.frame(matrix(rnorm(10), ncol = 2))
+#' df <- st_as_sf(df, coords = names(df), crs = NA)
+#' saveObject(df, path = fp)
 #' 
 setMethod("saveObject", "sf", function(x, path) {
     dir.create(path)
@@ -33,10 +38,16 @@ setMethod("saveObject", "sf", function(x, path) {
 #' converted to whichever language specific object such as \code{sfc} in R.
 #' 
 #' @inheritParams alabaster.base::readObject
+#' @return An \code{sf} data frame
 #' @importFrom sfarrow st_read_parquet
 #' @export
 #' @examples
-#' # example code
+#' library(sf)
+#' fp <- tempfile()
+#' df <- as.data.frame(matrix(rnorm(10), ncol = 2))
+#' df <- st_as_sf(df, coords = names(df), crs = NA)
+#' saveObject(df, path = fp)
+#' df2 <- readObject(fp)
 #' 
 readSF <- function(path, metadata = NULL) {
     df <- st_read_parquet(file.path(path, "map.parquet"))

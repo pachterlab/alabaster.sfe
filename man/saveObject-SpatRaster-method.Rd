@@ -13,6 +13,9 @@
 
 \item{...}{Extra parameters passed to \code{\link{writeRaster}}.}
 }
+\value{
+x is saved into \code{path} and \code{NULL} is invisibly returned.
+}
 \description{
 Intended for \code{SpatRasterImage} which really is \code{SpatRaster} that
 also inherits from SPE's \code{SpatialImage}. Besides \code{writeRaster},
@@ -23,7 +26,16 @@ is copied to a pre-defined place in the on-disk representation of SFE and
 \code{writeRaster} is not called.
 }
 \examples{
-# example code
+library(SFEData)
+fp <- tempfile()
+fn <- file.path(fp, "vizgen")
+d <- VizgenOutput(dataset = "cellpose", file_path = fn)
+suppressWarnings(sfe <- readVizgen(d))
+img <- getImg(sfe)
+class(img)
+fsave <- file.path(fp, "img")
+saveObject(img, fsave)
+img2 <- readObject(fsave)
 
 }
 \seealso{

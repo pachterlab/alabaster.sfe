@@ -79,12 +79,19 @@
 #' Read SFE object from alabaster on disk representation
 #'
 #' @inheritParams alabaster.base::readObject
-#'
+#' @return A \code{SpatialFeatureExperiment} object
 #' @export
 #' @importFrom spdep mat2listw
-#' @importFrom SingleCellExperiment int_metadata<- int_metadata
+#' @importFrom SingleCellExperiment int_metadata<- int_metadata reducedDims reducedDims<-
 #' @examples
-#' # example code
+#' library(SFEData)
+#' fp <- tempfile()
+#' fn <- file.path(fp, "vizgen")
+#' d <- VizgenOutput(dataset = "cellpose", file_path = fn)
+#' suppressWarnings(sfe <- readVizgen(d))
+#' fsave <- file.path(fp, "sfe_save")
+#' saveObject(sfe, fsave)
+#' sfe2 <- readObject(fsave)
 #'
 readSpatialFeatureExperiment <- function(path, metadata = NULL, ...) {
     if (is.null(metadata))

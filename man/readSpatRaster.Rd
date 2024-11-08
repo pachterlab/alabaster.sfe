@@ -12,7 +12,7 @@ readSpatRaster(path, metadata = NULL, ...)
 \item{metadata}{Named list containing metadata for the object - most importantly, the \code{type} field that controls dispatch to the correct loading function.
 If \code{NULL}, this is automatically read by \code{\link[alabaster.base]{readObjectFile}(path)}.}
 
-\item{...}{Arguments passed to \code{\link{terra::rast}}, character method.}
+\item{...}{Arguments passed to \code{\link[terra]{rast}}, character method.}
 }
 \value{
 A \code{\link{SpatRasterImage}} object for SFE.
@@ -22,7 +22,16 @@ Not the same as \code{terra::rast}; here this function also reads the
 metadata file.
 }
 \examples{
-# example code
+library(SFEData)
+fp <- tempfile()
+fn <- file.path(fp, "vizgen")
+d <- VizgenOutput(dataset = "cellpose", file_path = fn)
+suppressWarnings(sfe <- readVizgen(d))
+img <- getImg(sfe)
+class(img)
+fsave <- file.path(fp, "img")
+saveObject(img, fsave)
+img2 <- readObject(fsave)
 
 }
 \seealso{

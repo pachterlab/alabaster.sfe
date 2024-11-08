@@ -1,0 +1,144 @@
+---
+title: "Save/load SpatialFeatureExperiment to/from file"
+author: Lambda Moses
+date: "`r Sys.Date()`"
+output:
+  BiocStyle::html_document
+vignette: >
+  %\VignetteIndexEntry{Overview}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Overview
+The `SpatialFeatureExperiment` (SFE) class extends `SpatialExperiment` to foreground the spatial aspect of the data by incorporating Simple Feature geometries and geometric operations on the whole object like a multi-layered map. It also introduces new image classes to support the geospatial raster tradition (`terra` package) and the image processing package (`EBImage` package).
+
+As spatial -omics data is growing in size, some components of the SFE object are not loaded into memory unless necessary. This includes gene count matrix and assays that are `DelayedArrays` and BioFormats images only whose metadata is loaded into memory, as well as transcript spot geometries for smFISH-based technologies in some cases. We plan to expand the out of memory functionalities in the near future. As a result, when the SFE object is save to RDS and shared with others, often the out of memory components break because the original file is unavailable or is tied to some absolute path. 
+
+A goal of `alabaster.sfe` is to make SFE objects more portable for sharing, and to avoid recomputing affine transformations and spatial statistics after reading the data from the original output such as from Space Ranger. It is a contribution to the `alabaster` suite of packages from [ArtifactDB](https://github.com/ArtifactDB). Another goal is interoperability with Python and other languages as in the goal of ArtifactDB.
+
+# Xenium demo
+
+```{r setup}
+library(alabaster.sfe)
+library(Voyager)
+library(SFEData)
+library(SingleCellExperiment)
+library(scater)
+library(sf)
+library(fs)
+library(spdep)
+set.SubgraphOption(FALSE)
+```
+
+Here we show a small example on a subset of Xenium data, doing some basic spatial analyses.
+
+```{r}
+fp <- tempfile()
+x2 <- XeniumOutput("v2", file_path = file.path(fp, "xenium2"))
+sfe <- readXenium(x2, add_molecules = TRUE)
+```
+
+```{r}
+colData(sfe)
+```
+
+```{r}
+colGraph(sfe, "knn5") <- findSpatialNeighbors(sfe, method = "knearneigh", k = 5)
+sfe <- logNormCounts(sfe, size_factors = sfe$cell_area)
+sfe <- runMoransI(sfe, colGraphName = "knn5")
+sfe <- colDataMoransI(sfe, features = c("transcript_counts", "cell_area"))
+top_moran <- rownames(sfe)[which.max(rowData(sfe)$moran_sample01)]
+sfe <- runUnivariate(sfe, type = "localmoran", features = top_moran)
+```
+
+Global spatial statistics for gene expression are stored in `rowData`.
+```{r}
+rowData(sfe)
+```
+
+```{r}
+plotSpatialFeature(sfe, features = top_moran, colGeometryName = "cellSeg")
+```
+
+Global spatial statistics for `colData` can be accessed with `colFeatureData()`
+
+```{r}
+colFeatureData(sfe)
+```
+
+Local spatial statistics are stored in the field `localResults`.
+
+```{r}
+plotLocalResult(sfe, name = "localmoran", features = top_moran, divergent = TRUE,
+                colGeometryName = "cellSeg", diverge_center = 0)
+```
+
+So the SFE object can get quite a bit more complicated than `SpatialExperiment` as the results from spatial analyses are stored within the object to ease bookkeeping and plotting. The spatial analysis results will be save to disk with `alabaster.sfe`.
+
+Here the image is an OME-TIFF and only the metadata is in memory. Only the highest resolution necessary is loaded into memory for plotting, and only the part being plotted is loaded.
+
+```{r}
+plotImage(sfe, image_id = "morphology_focus", channel = 3:1, normalize_channels = TRUE)
+```
+
+In addition, we can do an affine transform on the object. Say to rotate it.
+
+```{r}
+sfe <- SpatialFeatureExperiment::rotate(sfe, degrees = 30)
+```
+
+```{r}
+plotGeometry(sfe, colGeometryName = "nucSeg", fill = FALSE, 
+             image_id = "morphology_focus",
+             channel = 3:1, normalize_channels = TRUE, dark = TRUE)
+```
+
+Now we save this object to disk.
+
+```{r}
+fsave <- file.path(fp, "sfe_save")
+saveObject(sfe, fsave)
+```
+
+The `SpatialExperiment` method is called first, which then calls new methods to save images implemented in `alabaster.sfe`. 
+
+```{r}
+dir_tree(fsave)
+```
+
+Here we see the original image is copied to the directory where we save this SFE object. Geometries are saved as GeoParquet files, as Apache Arrow is designed to be efficient and interoperable between languages. It also might open the way to out of memory geometric operations. However, note that as of writing, the GeoParquet format is still under development and may change.
+
+Now suppose we move the save directory, just like when sharing data along with all the spatial analyses and transformations.
+
+```{r}
+fsave2 <- file.path(fp, "meow")
+file.rename(fsave, fsave2)
+```
+
+```{r}
+sfe2 <- readObject(fsave2)
+```
+
+```{r}
+plotImage(sfe2, image_id = "morphology_focus", channel = 3:1, normalize_channels = TRUE)
+```
+
+The image still works. And the spatial analysis results are read as well.
+
+```{r}
+colFeatureData(sfe2)
+```
+
+# Session info
+```{r}
+sessionInfo()
+```
+

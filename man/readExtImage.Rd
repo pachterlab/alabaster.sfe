@@ -21,7 +21,16 @@ A \code{\link{ExtImage}} object for SFE.
 Read \code{ExtImage} from disk
 }
 \examples{
-# example code
+library(SFEData)
+fp <- tempfile()
+fsave <- file.path(fp, "exi")
+x1 <- XeniumOutput(dataset = "v1", file_path = file.path(fp, "xenium1"))
+sfe <- readXenium(x1)
+bfi <- getImg(sfe)
+exi <- toExtImage(bfi)
+saveObject(exi, fsave)
+exi2 <- readObject(fsave)
+unlink(fsave, recursive = TRUE)
 
 }
 \seealso{

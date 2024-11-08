@@ -13,6 +13,9 @@
 
 \item{...}{Ignored}
 }
+\value{
+x is saved into \code{path} and \code{NULL} is invisibly returned.
+}
 \description{
 This function copies the original file to a pre-defined location within the
 directory that stores the on disk representation of the SFE object for data
@@ -24,7 +27,15 @@ pre-defined location is important. This function also saves the metadata,
 which includes spatial extent and affine transformations.
 }
 \examples{
-#
+library(SFEData)
+fp <- tempfile()
+fsave <- file.path(fp, "bfi2")
+x1 <- XeniumOutput(dataset = "v1", file_path = file.path(fp, "xenium1"))
+sfe <- readXenium(x1)
+bfi <- getImg(sfe)
+saveObject(bfi, fsave)
+bfi2 <- readObject(fsave)
+unlink(fsave, recursive = TRUE)
 }
 \seealso{
 Other saveObject-SFE-image: 

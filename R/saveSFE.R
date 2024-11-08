@@ -88,7 +88,37 @@
 #' @importFrom S4Vectors metadata metadata<-
 #' @importFrom SummarizedExperiment colData colData<-
 #' @inheritParams alabaster.base::saveObject
+#' @return x is saved into \code{path} and \code{NULL} is invisibly returned.
 #' @export
+#' @examples
+#' library(SpatialFeatureExperiment)
+#' library(Voyager)
+#' library(SFEData)
+#' library(SingleCellExperiment)
+#' library(scater)
+#' 
+#' fp <- tempfile()
+#' fn <- file.path(fp, "vizgen")
+#' d <- VizgenOutput(dataset = "cellpose", file_path = fn)
+#' suppressWarnings(sfe1 <- readVizgen(d, add_molecules = TRUE))
+#' 
+#' colGraph(sfe1, "knn5") <- findSpatialNeighbors(sfe1, method = "knearneigh", k = 5)
+#' SpatialFeatureExperiment::centroids(sfe1)$foo <- rnorm(ncol(sfe1))
+#' sfe1 <- logNormCounts(sfe1)
+#' sfe1 <- runMoransI(sfe1, colGraphName = "knn5")
+#' sfe1 <- colDataMoransI(sfe1, features = c("transcript_count", "anisotropy", 
+#'                                           "perimeter_area_ratio", "solidity"))
+#' sfe1 <- colGeometryMoransI(sfe1, colGeometryName = "centroids", features = "foo")
+#' sfe1 <- runPCA(sfe1, ncomponents = 10)
+#' sfe1 <- reducedDimMoransI(sfe1, components = 1:10)
+#' 
+#' sfe1 <- runUnivariate(sfe1, type = "localmoran", features = rownames(sfe1)[1])
+#' 
+#' fsave <- file.path(fp, "sfe_vizgen")
+#' saveObject(sfe1, fsave)
+#' sfe2 <- readObject(fsave)
+#' 
+#' unlink(fsave, recursive = TRUE)
 setMethod("saveObject", "SpatialFeatureExperiment",
           function(x, path, ...) {
               # Must use the more-images branch of alabaster.spatial

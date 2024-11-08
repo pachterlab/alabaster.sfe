@@ -10,11 +10,21 @@
 #'
 #' @inheritParams alabaster.base::saveObject
 #' @param ... Extra parameters passed to \code{\link{writeRaster}}.
+#' @return x is saved into \code{path} and \code{NULL} is invisibly returned.
 #' @importFrom terra rast writeRaster
 #' @family saveObject-SFE-image
 #' @export
 #' @examples
-#' # example code
+#' library(SFEData)
+#' fp <- tempfile()
+#' fn <- file.path(fp, "vizgen")
+#' d <- VizgenOutput(dataset = "cellpose", file_path = fn)
+#' suppressWarnings(sfe <- readVizgen(d))
+#' img <- getImg(sfe)
+#' class(img)
+#' fsave <- file.path(fp, "img")
+#' saveObject(img, fsave)
+#' img2 <- readObject(fsave)
 #'
 setMethod("saveObject", "SpatRaster", function(x, path, ...) {
     dir.create(path)
@@ -50,18 +60,31 @@ setMethod("saveObject", "SpatRaster", function(x, path, ...) {
 #'
 #' @inheritParams alabaster.base::saveObject
 #' @param ... Ignored
+#' @return x is saved into \code{path} and \code{NULL} is invisibly returned.
 #' @export
 #' @family saveObject-SFE-image
 #' @examples
-#' #
+#' library(SFEData)
+#' fp <- tempfile()
+#' fsave <- file.path(fp, "bfi2")
+#' x1 <- XeniumOutput(dataset = "v1", file_path = file.path(fp, "xenium1"))
+#' sfe <- readXenium(x1)
+#' bfi <- getImg(sfe)
+#' saveObject(bfi, fsave)
+#' bfi2 <- readObject(fsave)
+#' unlink(fsave, recursive = TRUE)
 setMethod("saveObject", "BioFormatsImage", function(x, path, ...) {
     dir.create(path)
-    saveObjectFile(path, "bioformats_image",
-                   list(bioformats_image = list(version = "1.0",
-                                                is_full = isFull(x),
-                                                extent = ext(x),
-                                                origin = origin(x),
-                                                transformation = transformation(x))))
+    extra <- list(bioformats_image = list(version = "1.0",
+                                          is_full = isFull(x),
+                                          extent = as.list(.ext_(x)),
+                                          origin = origin(x),
+                                          transformation = transformation(x)))
+    extra$type <- "bioformats_image"
+    # Not using saveObjectFile because I don't want to round off digits in the
+    # affine transformation matrix
+    write_json(extra, path = file.path(path, "OBJECT"), 
+               auto_unbox = TRUE, digits = NA)
     f <- imgSource(x)
     # Deal with multi-file OME-TIFF, where imgSource points to the first file
     # Can't change file name in order not to mess with the XML metadata;
@@ -73,7 +96,7 @@ setMethod("saveObject", "BioFormatsImage", function(x, path, ...) {
         file.copy(fns, new_dir)
     } else {
         ex <- .file_ext(f)
-        file.copy(f, file.path(path, "image", ex))
+        file.copy(f, file.path(path, paste0("image", ex)))
     }
 })
 
@@ -81,16 +104,31 @@ setMethod("saveObject", "BioFormatsImage", function(x, path, ...) {
 #'
 #' @inheritParams alabaster.base::saveObject
 #' @param ... Extra arguments passed to \code{\link{writeImage}}.
-#' @importFrom EBImage writeImage
+#' @return x is saved into \code{path} and \code{NULL} is invisibly returned.
+#' @importFrom EBImage writeImage normalize
 #' @family saveObject-SFE-image
 #' @export
 #' @examples
-#' # example code
+#' library(SFEData)
+#' fp <- tempfile()
+#' fsave <- file.path(fp, "exi")
+#' x1 <- XeniumOutput(dataset = "v1", file_path = file.path(fp, "xenium1"))
+#' sfe <- readXenium(x1)
+#' bfi <- getImg(sfe)
+#' exi <- toExtImage(bfi)
+#' saveObject(exi, fsave)
+#' exi2 <- readObject(fsave)
+#' unlink(fsave, recursive = TRUE)
 #'
 setMethod("saveObject", "ExtImage", function(x, path, ...) {
     dir.create(path)
     saveObjectFile(path, "ext_image",
                    list(ext_image = list(version = "1.0",
-                                         extent = ext(x))))
-    writeImage(x, file.path(path, "image.tiff"))
+                                         extent = as.list(ext(x)))))
+    # I really hate the normalize values to [0,1] thing in the EBImage and tiff packages
+    # Just do what terra and Python do
+    is16 <- max(x) > 255
+    writeImage(normalize(x, inputRange = c(0, if (is16) 65535L else 255L)), 
+               file.path(path, "image.tiff"), 
+               bits.per.sample = if (is16) 16L else 8L)
 })

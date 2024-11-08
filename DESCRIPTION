@@ -3,31 +3,45 @@ Type: Package
 Title: Language agnostic on disk serialization of SpatialFeatureExperiment
 Version: 0.99.0
 Authors@R: 
-    person("Lambda", "Moses", email = "dlu2@caltech.edu", 
+    person("Lambda", "Moses", email = "dl3764@columbia.edu", 
     role = c("aut", "cre"),
     comment = c(ORCID = "0000-0002-7092-9427"))
 Description: 
     Builds upon the existing ArtifactDB project, expending alabaster.spatial for
     language agnostic on disk serialization of SpatialFeatureExperiment.
 Depends: 
-    SpatialFeatureExperiment (>= 1.9.2),
+    SpatialFeatureExperiment (>= 1.9.3),
     alabaster.base
 Imports:
+    alabaster.sce,
     alabaster.spatial (>= 1.5.2),
-    arrow,
     EBImage,
     jsonlite,
     methods,
+    RBioFormats,
+    S4Vectors,
     sfarrow,
+    SingleCellExperiment,
     spdep,
+    SummarizedExperiment,
     terra,
-    tools,
     xml2
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.2
 Suggests: 
+    BiocStyle,
+    fs,
+    knitr,
+    rmarkdown,
+    scater,
+    sf,
+    SFEData,
     testthat (>= 3.0.0),
     Voyager (>= 1.9.1)
 Config/testthat/edition: 3
+VignetteBuilder: knitr
+Remotes:
+    Voyager=github::pachterlab/voyager@devel,
+    github::pachterlab/SpatialFeatureExperiment@devel

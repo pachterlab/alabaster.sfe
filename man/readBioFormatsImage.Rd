@@ -23,8 +23,29 @@ on disk representation of SFE. The image itself should not be moved or the
 \code{BioFormatsImabe} object will no longer work.
 }
 \examples{
-# example code
+library(SFEData)
+fp <- tempfile()
+x1 <- XeniumOutput(dataset = "v1", file_path = file.path(fp, "xenium1"))
+x2 <- XeniumOutput("v2", file_path = file.path(fp, "xenium2"))
 
+# Single file OME-TIFF
+fsave <- file.path(fp, "bfi1")
+sfe <- readXenium(x1)
+bfi <- getImg(sfe)
+bfi <- affineImg(bfi, M = matrix(c(cos(pi/6), sin(pi/6), -sin(pi/6), cos(pi/6)), nrow = 2), 
+                 v = c(0,0))
+saveObject(bfi, fsave)
+bfi2 <- readObject(fsave)
+
+unlink(fsave, recursive = TRUE)
+
+# Multi file OME-TIFF
+fsave <- file.path(fp, "bfi2")
+sfe <- readXenium(x2)
+bfi <- getImg(sfe)
+saveObject(bfi, fsave)
+bfi2 <- readObject(fsave)
+unlink(fsave, recursive = TRUE)
 }
 \seealso{
 Other readObject-SFE-image: 

@@ -13,11 +13,23 @@
 
 \item{...}{Extra arguments passed to \code{\link{writeImage}}.}
 }
+\value{
+x is saved into \code{path} and \code{NULL} is invisibly returned.
+}
 \description{
 Save \code{ExtImage} to disk for \code{alabaster}
 }
 \examples{
-# example code
+library(SFEData)
+fp <- tempfile()
+fsave <- file.path(fp, "exi")
+x1 <- XeniumOutput(dataset = "v1", file_path = file.path(fp, "xenium1"))
+sfe <- readXenium(x1)
+bfi <- getImg(sfe)
+exi <- toExtImage(bfi)
+saveObject(exi, fsave)
+exi2 <- readObject(fsave)
+unlink(fsave, recursive = TRUE)
 
 }
 \seealso{

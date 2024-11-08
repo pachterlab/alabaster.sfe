@@ -13,6 +13,9 @@
 
 \item{...}{Additional named arguments to pass to specific methods.}
 }
+\value{
+x is saved into \code{path} and \code{NULL} is invisibly returned.
+}
 \description{
 Save SFE objects to disk in an interoperable, language agnostic format that
 may also facilitate out of memory operations via HDF5 (non-spatial, inherited
@@ -31,4 +34,34 @@ parts of the SFE object are more experimental and are subject to change.
 \code{colFeatureData} where global spatial results are stored for columns of
 \code{colData(x)} is saved by the \code{alabaster} \code{saveObject} method
 for \code{DataFrame}.
+}
+\examples{
+library(SpatialFeatureExperiment)
+library(Voyager)
+library(SFEData)
+library(SingleCellExperiment)
+library(scater)
+
+fp <- tempfile()
+fn <- file.path(fp, "vizgen")
+d <- VizgenOutput(dataset = "cellpose", file_path = fn)
+suppressWarnings(sfe1 <- readVizgen(d, add_molecules = TRUE))
+
+colGraph(sfe1, "knn5") <- findSpatialNeighbors(sfe1, method = "knearneigh", k = 5)
+SpatialFeatureExperiment::centroids(sfe1)$foo <- rnorm(ncol(sfe1))
+sfe1 <- logNormCounts(sfe1)
+sfe1 <- runMoransI(sfe1, colGraphName = "knn5")
+sfe1 <- colDataMoransI(sfe1, features = c("transcript_count", "anisotropy", 
+                                          "perimeter_area_ratio", "solidity"))
+sfe1 <- colGeometryMoransI(sfe1, colGeometryName = "centroids", features = "foo")
+sfe1 <- runPCA(sfe1, ncomponents = 10)
+sfe1 <- reducedDimMoransI(sfe1, components = 1:10)
+
+sfe1 <- runUnivariate(sfe1, type = "localmoran", features = rownames(sfe1)[1])
+
+fsave <- file.path(fp, "sfe_vizgen")
+saveObject(sfe1, fsave)
+sfe2 <- readObject(fsave)
+
+unlink(fsave, recursive = TRUE)
 }
