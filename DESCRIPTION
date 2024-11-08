@@ -45,3 +45,4 @@ VignetteBuilder: knitr
 Remotes:
     Voyager=github::pachterlab/voyager@devel,
     github::pachterlab/SpatialFeatureExperiment@devel
+URL: https://pachterlab.github.io/alabaster.sfe/
