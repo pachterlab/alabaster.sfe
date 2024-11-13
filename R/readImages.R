@@ -24,8 +24,15 @@
 #' 
 readSpatRaster <- function(path, metadata = NULL, ...) {
     fn <- list.files(path, pattern = "^image\\.")
+    metadata <- read_json(file.path(path, "OBJECT"), simplifyVector = TRUE)$geotiff
     # Validation function should check that there's only one file matching the pattern
-    SpatRasterImage(rast(file.path(path, fn), ...))
+    f <- file.path(path, fn)
+    w <- tryCatch(rast(f), warning = function(w) w) # the extent warning
+    suppressWarnings(img <- rast(f, ...))
+    if (is(w, "warning")) {
+        ext(img) <- unlist(metadata$extent)
+    }
+    SpatRasterImage(img)
 }
 
 #' Read \code{BioFormatsImage} from \code{alabaster} on disk representation

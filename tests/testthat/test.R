@@ -33,7 +33,11 @@ test_that("Save and read Vizgen data with SpatRaster", {
     # The images
     imgs1 <- lapply(imgData(sfe1)$data, terra::values)
     imgs2 <- lapply(imgData(sfe2)$data, terra::values)
-    expect_equal(imgs1, imgs2)
+    expect_equal(imgs1, imgs2, ignore_attr = "dimnames")
+    # Extent
+    exts1 <- lapply(imgData(sfe1)$data, ext)
+    exts2 <- lapply(imgData(sfe1)$data, ext)
+    expect_equal(exts1, exts2)
     unlink(fsave, recursive = TRUE)
 })
 

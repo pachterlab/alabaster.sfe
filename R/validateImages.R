@@ -1,9 +1,9 @@
 # Validate the images
 validateGeoTIFF <- function(path, metadata = NULL) {
-    f <- file.path(path, "image.tiff")
+    fn <- list.files(path, pattern = "^image\\.")
+    f <- file.path(path, fn)
+    stopifnot(length(f) == 1L)
     stopifnot(file.exists(f))
-    w <- tryCatch(rast(f), warning = function(w) w)
-    if (is(w, "warning")) stop("image.tiff must be GeoTIFF")
 }
 
 validateBFI <- function(path, metadata = NULL) {

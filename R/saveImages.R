@@ -29,7 +29,8 @@
 setMethod("saveObject", "SpatRaster", function(x, path, ...) {
     dir.create(path)
     saveObjectFile(path, "geotiff", 
-                   list(geotiff = list(version = "1.0")))
+                   list(geotiff = list(version = "1.0",
+                                       extent = as.list(ext(x)))))
     f <- imgSource(x)
     if (is.na(f)) {
         is_geotiff <- FALSE
@@ -37,11 +38,11 @@ setMethod("saveObject", "SpatRaster", function(x, path, ...) {
         w <- tryCatch(rast(f), warning = function(w) w) # the extent warning
         is_geotiff <- !is(w, "warning")
     }
-    if (is_geotiff) {
+    # What about large files not in memory but don't have extent?
+    # That what the !inMemory(x) is for. Resaving with writeRaster is slow
+    if (is_geotiff || !inMemory(x)) {
         ex <- .file_ext(f)
-        file.copy(f, file.path(path, "image", ex))
-        # Still debating whether to keep original format or always use tiff
-        # Since what if a special driver is required?
+        file.copy(f, file.path(path, paste0("image", ex)))
     } else {
         writeRaster(x, file.path(path, "image.tiff"), ...)
     }
