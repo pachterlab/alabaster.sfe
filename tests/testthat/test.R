@@ -41,6 +41,16 @@ test_that("Save and read Vizgen data with SpatRaster", {
     unlink(fsave, recursive = TRUE)
 })
 
+test_that("Save and read SpatRasterImage in memory", {
+    m <- matrix(1:25, nrow=5, ncol=5)
+    rm <- SpatRasterImage(rast(m))
+    f <- tempfile()
+    saveObject(rm, f)
+    rm2 <- readObject(f)
+    expect_equal(terra::values(rm2), terra::values(rm))
+    expect_equal(ext(rm2), ext(rm))
+})
+
 # Add the other stuff
 colGraph(sfe1, "knn5") <- findSpatialNeighbors(sfe1, method = "knearneigh", k = 5)
 SpatialFeatureExperiment::centroids(sfe1)$foo <- rnorm(ncol(sfe1))
