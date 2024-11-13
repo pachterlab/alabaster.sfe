@@ -75,11 +75,11 @@ If <code>NULL</code>, this is automatically read by <code><a href="https://rdrr.
 <span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SFEData/man/VizgenOutput.html" class="external-link">VizgenOutput</a></span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"cellpose"</span>, file_path <span class="op">=</span> <span class="va">fn</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> see ?SFEData and browseVignettes('SFEData') for documentation</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> loading from cache</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> The downloaded files are in /tmp/RtmpCXK1yn/file2843ca6780d/vizgen/vizgen_cellbound_Cellpose </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> The downloaded files are in /tmp/Rtmp2VhROy/file25095c34d6c9/vizgen/vizgen_cellbound_Cellpose </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="va">sfe</span> <span class="op">&lt;-</span> <span class="fu">readVizgen</span><span class="op">(</span><span class="va">d</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> &gt;&gt;&gt; 1 `.parquet` files exist:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpCXK1yn/file2843ca6780d/vizgen/vizgen_cellbound_Cellpose/Cellpose/cellpose_micron_space.parquet</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> &gt;&gt;&gt; using -&gt; /tmp/RtmpCXK1yn/file2843ca6780d/vizgen/vizgen_cellbound_Cellpose/Cellpose/cellpose_micron_space.parquet</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/Rtmp2VhROy/file25095c34d6c9/vizgen/vizgen_cellbound_Cellpose/Cellpose/cellpose_micron_space.parquet</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> &gt;&gt;&gt; using -&gt; /tmp/Rtmp2VhROy/file25095c34d6c9/vizgen/vizgen_cellbound_Cellpose/Cellpose/cellpose_micron_space.parquet</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> &gt;&gt;&gt; Cell segmentations are found in `.parquet` file</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Sanity checks on cell segmentation polygons:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> &gt;&gt;&gt; ..found 1 cells with (nested) polygon lists</span>
@@ -89,8 +89,10 @@ If <code>NULL</code>, this is automatically read by <code><a href="https://rdrr.
 <span class="r-in"><span><span class="va">fsave</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">fp</span>, <span class="st">"sfe_save"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">saveObject</span><span class="op">(</span><span class="va">sfe</span>, <span class="va">fsave</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> &gt;&gt;&gt; Saving SpatialExperiment</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in inMemory(x):</span> could not find function "inMemory"</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> &gt;&gt;&gt; Saving colgeometries</span>
 <span class="r-in"><span><span class="va">sfe2</span> <span class="op">&lt;-</span> <span class="fu">readObject</span><span class="op">(</span><span class="va">fsave</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> &gt;&gt;&gt; Reading SpatialExperiment</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> &gt;&gt;&gt; Reading colgeometries</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
