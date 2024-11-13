@@ -28,9 +28,12 @@
 #'
 setMethod("saveObject", "SpatRaster", function(x, path, ...) {
     dir.create(path)
-    saveObjectFile(path, "geotiff", 
-                   list(geotiff = list(version = "1.0",
-                                       extent = as.list(ext(x)))))
+    extra <- list(geotiff = list(version = "1.0",
+                                 extent = as.list(ext(x))))
+    extra$type <- "geotiff"
+    # Not using saveObjectFile because I don't want to round off digits
+    write_json(extra, path = file.path(path, "OBJECT"), 
+               auto_unbox = TRUE, digits = NA)
     f <- imgSource(x)
     if (is.na(f)) {
         is_geotiff <- FALSE
@@ -123,9 +126,12 @@ setMethod("saveObject", "BioFormatsImage", function(x, path, ...) {
 #'
 setMethod("saveObject", "ExtImage", function(x, path, ...) {
     dir.create(path)
-    saveObjectFile(path, "ext_image",
-                   list(ext_image = list(version = "1.0",
-                                         extent = as.list(ext(x)))))
+    extra <- list(ext_image = list(version = "1.0",
+                                   extent = as.list(ext(x))))
+    extra$type <- "ext_image"
+    # Not using saveObjectFile because I don't want to round off digits
+    write_json(extra, path = file.path(path, "OBJECT"), 
+               auto_unbox = TRUE, digits = NA)
     # I really hate the normalize values to [0,1] thing in the EBImage and tiff packages
     # Just do what terra and Python do
     is16 <- max(x) > 255
