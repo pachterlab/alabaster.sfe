@@ -11,7 +11,7 @@
 #' @inheritParams alabaster.base::saveObject
 #' @param ... Extra parameters passed to \code{\link{writeRaster}}.
 #' @return x is saved into \code{path} and \code{NULL} is invisibly returned.
-#' @importFrom terra rast writeRaster
+#' @importFrom terra rast writeRaster inMemory
 #' @family saveObject-SFE-image
 #' @export
 #' @examples
