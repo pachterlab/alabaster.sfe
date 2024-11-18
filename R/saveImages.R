@@ -45,7 +45,7 @@ setMethod("saveObject", "SpatRaster", function(x, path, ...) {
     # That what the !inMemory(x) is for. Resaving with writeRaster is slow
     if (is_geotiff || !inMemory(x)) {
         ex <- .file_ext(f)
-        file.copy(f, file.path(path, paste0("image", ex)))
+        fs::file_copy(f, file.path(path, paste0("image", ex)))
     } else {
         writeRaster(x, file.path(path, "image.tiff"), ...)
     }
@@ -97,10 +97,10 @@ setMethod("saveObject", "BioFormatsImage", function(x, path, ...) {
     if (length(fns) > 1L) {
         new_dir <- file.path(path, "image")
         dir.create(new_dir)
-        file.copy(fns, new_dir)
+        fs::file_copy(fns, new_dir)
     } else {
         ex <- .file_ext(f)
-        file.copy(f, file.path(path, paste0("image", ex)))
+        fs::file_copy(f, file.path(path, paste0("image", ex)))
     }
 })
 
