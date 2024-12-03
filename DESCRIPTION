@@ -1,7 +1,7 @@
 Package: alabaster.sfe
 Type: Package
 Title: Language agnostic on disk serialization of SpatialFeatureExperiment
-Version: 0.99.1
+Version: 0.99.2
 Authors@R: 
     person("Lambda", "Moses", email = "dl3764@columbia.edu", 
     role = c("aut", "cre"),
