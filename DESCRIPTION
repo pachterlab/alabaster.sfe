@@ -1,7 +1,7 @@
 Package: alabaster.sfe
 Type: Package
 Title: Language agnostic on disk serialization of SpatialFeatureExperiment
-Version: 0.99.0
+Version: 0.99.1
 Authors@R: 
     person("Lambda", "Moses", email = "dl3764@columbia.edu", 
     role = c("aut", "cre"),
@@ -46,6 +46,3 @@ URL: https://pachterlab.github.io/alabaster.sfe/
 biocViews:
     DataRepresentation,
     Spatial
-Remotes:
-    Voyager=github::pachterlab/voyager@devel,
-    github::pachterlab/SpatialFeatureExperiment@devel
