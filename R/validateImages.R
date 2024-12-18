@@ -1,6 +1,7 @@
 # Validate the images
 validateGeoTIFF <- function(path, metadata = NULL) {
     fn <- list.files(path, pattern = "^image\\.")
+    fn <- fn[!grepl("aux\\.xml$", fn)] # aux file for geotiff
     f <- file.path(path, fn)
     stopifnot(length(f) == 1L)
     stopifnot(file.exists(f))

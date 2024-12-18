@@ -52,7 +52,7 @@
                 write_json(names(gs), path = file.path(ddd, "names.json"))
                 for (j in seq_along(gs)) {
                     dddd <- file.path(ddd, j-1L)
-                    mat <- listw2sparse(gs[[j]])
+                    mat <- spatialreg::as_dgRMatrix_listw(gs[[j]])
                     # Calls the sparse matrix method from alabaster.base
                     altSaveObject(mat, path = dddd)
                     # Save the methods metadata
