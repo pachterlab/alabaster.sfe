@@ -24,6 +24,7 @@
 #' 
 readSpatRaster <- function(path, metadata = NULL, ...) {
     fn <- list.files(path, pattern = "^image\\.")
+    fn <- fn[!grepl("aux\\.xml$", fn)] # aux file for geotiff
     metadata <- read_json(file.path(path, "OBJECT"), simplifyVector = TRUE)$geotiff
     # Validation function should check that there's only one file matching the pattern
     f <- file.path(path, fn)
