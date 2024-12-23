@@ -20,13 +20,13 @@ knitr::opts_chunk$set(
 # Overview
 The `SpatialFeatureExperiment` (SFE) class extends `SpatialExperiment` to foreground the spatial aspect of the data by incorporating Simple Feature geometries and geometric operations on the whole object like a multi-layered map. It also introduces new image classes to support the geospatial raster tradition (`terra` package) and the image processing package (`EBImage` package).
 
-As spatial -omics data is growing in size, some components of the SFE object are not loaded into memory unless necessary. This includes gene count matrix and assays that are `DelayedArrays` and BioFormats images only whose metadata is loaded into memory, as well as transcript spot geometries for smFISH-based technologies in some cases. We plan to expand the out of memory functionalities in the near future. As a result, when the SFE object is save to RDS and shared with others, often the out of memory components break because the original file is unavailable or is tied to some absolute path. 
+As spatial -omics data is growing in size, some components of the SFE object are not loaded into memory unless necessary. This includes gene count matrix and assays that are `DelayedArrays` and BioFormats images only whose metadata is loaded into memory, as well as transcript spot geometries for smFISH-based technologies in some cases. We plan to expand the out of memory functionalities in the near future. As a result, when the SFE object is saved to RDS and shared with others, often the out of memory components break because the original file is unavailable or is tied to some absolute path. 
 
 A goal of `alabaster.sfe` is to make SFE objects more portable for sharing, and to avoid recomputing affine transformations and spatial statistics after reading the data from the original output such as from Space Ranger. It is a contribution to the `alabaster` suite of packages from [ArtifactDB](https://github.com/ArtifactDB). Another goal is interoperability with Python and other languages as in the goal of ArtifactDB.
 
 # Xenium demo
 
-```{r setup}
+```{r setup, message=FALSE}
 library(alabaster.sfe)
 library(Voyager)
 library(SFEData)
