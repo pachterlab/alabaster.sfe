@@ -23,6 +23,10 @@
     # One directory for each type, and inside that one for each feature
     # Need to deal with illegal names at some point
     if (!length(lrs)) return(NULL)
+    # deal with package_version VJC
+    availlr = names(metadata(lrs)$params)
+    for (i in availlr)
+        metadata(lrs)$params[[i]]$version = as.character(metadata(lrs)$params[[i]]$version)
     message(">>> Saving localResults")
     dir_use <- file.path(path, "local_results")
     altSaveObject(lrs, dir_use)
