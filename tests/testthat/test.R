@@ -17,7 +17,8 @@ test_that("Save and read Vizgen data with SpatRaster", {
     expect_true(dir.exists(fsave))
     # Here make sure we don't get local_results and spatial_graphs
     expect_setequal(list.files(fsave), c("assays", "colgeometries", "column_data", "coordinates",
-                                         "images", "OBJECT", "row_data", "rowgeometries"))
+                                         "images", "OBJECT", "row_data", "rowgeometries",
+                                         "_environment.json"))
     
     sfe2 <- readObject(fsave)
     # can't directly expect_equal due to the images and ReloadedMatrix
@@ -70,7 +71,7 @@ test_that("Save and read sfe with other fields populated", {
     expect_setequal(list.files(fsave), 
                     c("assays", "colgeometries", "column_data", "coordinates", "images", 
                       "OBJECT", "reduced_dimensions", "row_data", "rowgeometries", "local_results",
-                      "spatial_graphs"))
+                      "spatial_graphs", "_environment.json"))
     expect_true(all(dir.exists(file.path(fsave, "colgeometries", "0", c("feature_data", "params")))))
     expect_true(all(dir.exists(file.path(fsave, "column_data", c("column_annotations", "other_annotations")))))
     expect_true(dir.exists(file.path(fsave, "reduced_dimensions", "0", "attrs")))
